@@ -1,72 +1,86 @@
-# ShortUrl 🔗
+# Request 🛜
 
-ShortUrl is a URL shortening service built with Golang, Gin, PostgreSQL, and REST API. It features user authentication, logging, Docker support, and encrypted tokens for secure operations.
-
-ShortUrl — это сервис сокращения URL-адресов, созданный с использованием Golang, Gin, PostgreSQL и REST API. Он включает аутентификацию пользователей, ведение журналов, поддержку Docker и зашифрованные токены для безопасной работы.
-
----
-
-## Features / Функционал
-
-| Endpoint           | Method | Description (EN)                   | Описание (RU)                     | Example / Пример                                                                                                                                      |
-| ------------------ | ------ | ---------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/status/server`   | GET    | Check server status                | Проверка статуса сервера          | `curl http://localhost:8080/status/server`                                                                                                            |
-| `/status/postgres` | GET    | Check PostgreSQL connection        | Проверка подключения к PostgreSQL | `curl http://localhost:8080/status/postgres`                                                                                                          |
-| `/auth/register`   | POST   | Register a new user                | Регистрация нового пользователя   | `bash curl -X POST http://localhost:8080/auth/register -H "Content-Type: application/json" -d '{"username":"test","password":"1234"}'`                |
-| `/auth/login`      | POST   | Log in                             | Вход пользователя                 | `bash curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d '{"username":"test","password":"1234"}'`                   |
-| `/l`               | GET    | Get all links for the current user | Получить все ссылки пользователя  | `bash curl -H "Authorization: Bearer <TOKEN>" http://localhost:8080/l`                                                                                |
-| `/l/:id`           | GET    | Search link by ID                  | Получить ссылку по ID             | `bash curl -H "Authorization: Bearer <TOKEN>" http://localhost:8080/l/123`                                                                            |
-| `/l`               | POST   | Register a new link                | Зарегистрировать новую ссылку     | `bash curl -X POST -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" -d '{"url":"https://example.com"}' http://localhost:8080/l` |
+Simple HTTP client in Go (mini `curl` alternative).  
+Простой HTTP-клиент на Go (аналог `curl`).
 
 ---
 
-## Key Features / Основные особенности
-
-* Middleware for **authentication** and **logging**
-  Middleware для **авторизации** и **логирования**
-* **AES-encrypted tokens** for secure authentication
-  **AES-шифрование токенов** для безопасной аутентификации
-* Fully **RESTful API**
-  Полностью **REST API**
-* **Docker** and **Docker Compose** ready
-  Поддержка **Docker** и **Docker Compose**
-* Automation support via **Makefile**
-  Автоматизация через **Makefile**
-
----
-
-## Tech Stack / Технологии
-
-* **Golang**
-* **Gin** (Web framework / Фреймворк)
-* **PostgreSQL** (Database / База данных)
-* **Docker / Docker Compose**
-* **Makefile** for automation
-
----
-
-## Quick Start / Быстрый старт
-
-1. Clone the repository / Клонируем репозиторий:
+## Installation / Установка
 
 ```bash
-git clone https://github.com/YourUsername/ShortUrl.git
-cd ShortUrl
-```
-
-2. Configure `docker compose env` / Настройте `docker compose env` с параметрами PostgreSQL и AES ключом.
-
-3. Run the service using make / Запуск сервиса через make:
-
-```bash
+git clone https://github.com/gox7/request.git
+cd request
 make build
-```
+````
 
-4. Server will be available at `http://localhost:8080` / Сервер будет доступен по адресу `http://localhost:8080`.
+Binary will be in `./build/request`.
+Собранный бинарь будет в `./build/request`.
 
 ---
 
-## Logging / Логирование
+## Usage / Использование
 
-All requests and errors are logged, making it easy to debug and monitor the service.
-Все запросы и ошибки логируются для удобного дебага и мониторинга сервиса.
+```bash
+./request [flags]
+```
+
+### Supported flags / Поддерживаемые флаги
+
+| Flag            | Description (EN)              | Описание (RU)                      | Default  |
+| --------------- | ----------------------------- | ---------------------------------- | -------- |
+| `-X`            | HTTP method                   | HTTP-метод                         | `GET`    |
+| `-H`            | Request header                | Заголовок запроса                  | `none`   |
+| `-B`            | Request body                  | Тело запроса                       | `""`     |
+| `-a`            | Address                       | Адрес                              | `none`   |
+| `-p`            | Protocol (`http`)             | Протокол (`http`)                  | `http`   |
+| `-t`            | Timeout (seconds)             | Таймаут (в секундах)               | `10`     |
+| `-o`            | Export (filename or `stdout`) | Экспорт (файл или `stdout`)        | `stdout` |
+| `-test_request` | Run built-in request test     | Запустить встроенный тест запроса  | `false`  |
+| `-test_export`  | Run built-in export test      | Запустить встроенный тест экспорта | `false`  |
+
+---
+
+## Examples / Примеры
+
+**GET request / GET-запрос**:
+
+```bash
+./request -X GET -a https://ifconfig.me/ip
+```
+
+**POST request with body / POST-запрос с телом**:
+
+```bash
+./request -X POST -a https://httpbin.org/post -B '{"hello":"world"}' -H "Content-Type:application/json"
+```
+
+**Save result to file / Сохранить результат в файл**:
+
+```bash
+./request -a https://ifconfig.me/ip -o result.txt
+```
+
+---
+
+## Tests / Тесты
+
+Run internal tests:
+Запуск встроенных тестов:
+
+```bash
+./request -test_request
+./request -test_export
+```
+
+---
+
+## Project structure / Структура проекта
+
+```
+cmd/            # entrypoint / точка входа
+internal/config # flags & config / парсинг флагов и конфиг
+internal/request# request logic / логика HTTP-запроса
+internal/exports# export results / вывод/сохранение результата
+internal/util   # test utils / утилиты для тестов
+tests/          # tests / тесты
+```
